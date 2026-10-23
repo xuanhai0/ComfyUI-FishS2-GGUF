@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a reproducible problem
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Please remove personal paths, copyrighted voice samples and confidential prompts before sharing logs.
+  - type: input
+    id: versions
+    attributes:
+      label: Versions and environment
+      description: ComfyUI, ComfyUI-FishS2-GGUF, s2.cpp, OS, GPU/VRAM, model GGUF variant
+      placeholder: Windows 11, RTX ..., ComfyUI ..., s2.cpp ..., ComfyUI-FishS2-GGUF ...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs (optional)
+      render: shell
