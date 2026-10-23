@@ -1,8 +1,13 @@
 # Changelog
 
-## v0.5.3-preview (2026-10-23)
+## Unreleased — documentation updates after initial publication
 
-Initial public-release **candidate** based on the local v0.5.3 GPU + sentence segmentation hotfix.
+- Clarified the recommended `server_config` wiring and automatic reuse of server settings in Generate, Voice Create and Voice Input in both languages.
+- Aligned v0.5.3 release wording across the READMEs. No runtime code changes.
+
+## v0.5.3 (2026-10-23)
+
+Initial public release based on the local v0.5.3 GPU + sentence segmentation hotfix. The build remains experimental and has not undergone a full clean-environment Windows regression test.
 
 - Default `gpu_layers=-1` in Server Control and Voice Create, and permit `-1` in server argument validation.
 - Default Codec backend to `Auto`.

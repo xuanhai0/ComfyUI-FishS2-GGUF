@@ -15,7 +15,7 @@
 | s2.cpp compiles with your **MSVC + CMake + CUDA Toolkit**, and the `ggml` submodule is present | [Windows build prerequisites](INSTALL_WINDOWS_S2CPP.md#build-prerequisites) |
 | You found the **actual** `s2.exe`, DLL directory, GGUF and tokenizer; Windows Release paths may differ from Linux README examples | [Find the real paths](INSTALL_WINDOWS_S2CPP.md#file-layout-and-actual-build-outputs) |
 | s2.cpp can create a WAV **without ComfyUI**, first from CLI and then HTTP | [Independent smoke tests](INSTALL_WINDOWS_S2CPP.md#validate-the-engine-before-comfyui) |
-| Configure `Fish S2 Server Control`; connect `server_config` to `Fish S2 Generate` | [ComfyUI Node Setup](#comfyui-node-setup) |
+| Configure `Fish S2 Server Control` **first**, then connect its `server_config` output to the other Fish S2 nodes to reuse server settings | [Centralized server configuration](#comfyui-node-setup) |
 | Confirm `gpu_layers=-1`, `codec_backend=Auto`, `per_sentence=true`, `let_server_segment_sentences=true` | [Key setting checks](#key-setting-checks) |
 | Understand built-in saved voices versus overriding with `Fish S2 Voice Input` | [Two illustrated workflows](#illustrated-workflows) |
 
@@ -42,6 +42,8 @@ If you have not built s2.cpp yet, follow [Windows build: English](INSTALL_WINDOW
 
 ## Illustrated workflows
 
+**Recommended:** configure **Fish S2 Server Control** once, then connect its `server_config` output to every Fish S2 node in the workflow that exposes a `server_config` input. Connected nodes automatically reuse the relevant server configuration instead of requiring duplicate paths or addresses. See [ComfyUI Node Setup](#comfyui-node-setup) for the exact fields.
+
 ### Workflow A — saved-voice dropdown
 
 ![ComfyUI Fish S2 nodes using the built-in saved-voice selector. Absolute local Windows paths have been obscured.](docs/images/01-saved-voice-selection.png)
@@ -60,11 +62,13 @@ Connect **Server Control → Voice Input** via `server_config`, and connect **Vo
 
 **This section is the fast path for people whose s2.cpp CLI and HTTP server already work.**
 
+> **Recommended wiring — configure once, reuse everywhere:** First finish the paths, server address and GPU settings in **Fish S2 Server Control**. Then connect its **`server_config` output** (not the `server_url` output) to the `server_config` input of **Fish S2 Generate**, **Fish S2 Voice Create** and **Fish S2 Voice Input** whenever those nodes are used. This centralizes server-related settings: Generate automatically takes the HTTP URL and hides its `server_url` widget; Voice Create inherits `executable`, `model`, `tokenizer`, `voice_dir`, `dll_dir`, `cuda_device` and `gpu_layers`, and hides these duplicate widgets. Voice Input uses the connected server's voice directory for saved-voice selection. It can sometimes discover the directory via a connected Generate node, but a direct link is clearer and avoids ambiguity when multiple servers are present. **Connecting these sockets does not start the server automatically**; start it explicitly in Server Control.
+
 1. Add **Fish S2 Server Control**, set `root_dir` to the s2.cpp project root, and click **Scan Components**. Check `executable`, `Model`, `Voice Library`, `tokenizer`, and `dll_dir` against the *actual* files. The scanner checks common locations; it is not a filesystem-wide search. If necessary, fill paths manually. Changing `root_dir` again may refresh/replace those selections.
 2. Set `host=127.0.0.1`, `port=3030` (or your desired non-conflicting port), `cuda_device=0` and `gpu_layers=-1` for an NVIDIA CUDA setup. Choose **Codec Backend: Auto**. Click **Start Server**, then **Refresh Status** / **Open Monitor** to inspect the real log. Stop any independently launched server using the same port first.
-3. Add **Fish S2 Generate**. Connect the **Server Control** `server_config` output to the Generate `server_config` input. Choose `speaker_count` and press **Refresh Voices** for the saved-voice dropdowns, or connect a **Fish S2 Voice Input** as in Workflow B.
+3. Add **Fish S2 Generate**. Connect **Server Control → Generate** using their `server_config` sockets (not the similarly named `server_url` output). The Generate node then uses the Server Control address automatically, and its own `server_url` field is hidden. Choose `speaker_count` and press **Refresh Voices**, or connect **Fish S2 Voice Input** as in Workflow B.
 4. Enter a short test line. For multiple voices, put `[speaker1]`, `[speaker2]`, etc. at the **start of each line**. Click **Queue Prompt**; inspect **Open Task Monitor**, then **Preview WAV** or **Download WAV** after success.
-5. Optionally use **Fish S2 Voice Create** with matching reference audio + reference transcript to create a reusable `.s2voice` file; refresh voices on Generate afterward.
+5. Optionally connect **Server Control → Voice Create** via `server_config`, then supply reference audio + matching transcript to create a reusable `.s2voice` file; the executable/model/tokenizer/path and GPU fields are taken from Server Control. When using **Voice Input**, connect Server Control to its `server_config` input as well so its saved-voice browser can resolve the correct library. Refresh voices in Generate after creating profiles.
 
 ```text
 [speaker1] Hello! This is a short test.
@@ -75,7 +79,7 @@ For a single speaker, untagged plain text is accepted. The defaults are *new-nod
 
 ## Key setting checks
 
-| Widget | Default in this preview | Interpretation |
+| Widget | Default for new nodes | Interpretation |
 |---|---|---|
 | Server `gpu_layers` | `-1` | Offload all available transformer layers when CUDA is selected (`0` means no transformer offload). |
 | Server `codec_backend` | `Auto` | Let s2.cpp benchmark the codec backends. |
@@ -90,6 +94,6 @@ For a single speaker, untagged plain text is accepted. The defaults are *new-nod
 
 The original code and documentation in this plugin repository are released under [GNU GPL-3.0-only](LICENSE), **Copyright (C) 2026 xuanhai0**, to the extent the maintainer holds the necessary rights. Redistribution of covered modifications must comply with GPL-3.0; commercial use and sale of the GPL-covered plugin code are permitted. This license **does not** relicense Fish Audio S2-Pro model weights, tokenizer, s2.cpp, or any other third-party materials. Fish Audio S2-Pro weights and the upstream s2.cpp engine have separate Fish Audio Research License terms; commercial use of those components requires a separate agreement. Review [third-party notices](THIRD_PARTY_NOTICES.md) and upstream licenses before use. Voice cloning also requires appropriate consent and rights.
 
-The maintainer provides this project on a best-effort, spare-time basis without promised support SLAs or guaranteed compatibility. This is a **v0.5.3 preview/release candidate**, not a fully regression-tested production build.
+The maintainer provides this project on a best-effort, spare-time basis without promised support SLAs or guaranteed compatibility. **v0.5.3** is the initial public release, but the complete package has **not** undergone clean-environment Windows regression testing and should not be treated as production-validated.
 
 **Acknowledgments:** This project was created and repeatedly revised with **substantial help from OpenAI's ChatGPT**, including implementation drafts, debugging, code revisions, test planning, and documentation. **xuanhai0** directed the feature requirements, evaluated alternatives, performed local Windows testing, and maintains/releases the project. ChatGPT is acknowledged as an AI assistant, not an official project author, maintainer, or sponsor. See [ACKNOWLEDGMENTS.md](ACKNOWLEDGMENTS.md).

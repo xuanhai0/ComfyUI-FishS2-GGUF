@@ -185,6 +185,8 @@ curl.exe -X POST http://127.0.0.1:3030/generate --form 'text=Hello from the HTTP
 
 预期参数：`cuda_device=0`、`gpu_layers=-1`、`codec_backend=Auto`；不同硬件应相应调整。模型加载成功后，再通过插件跑一次极短语音任务。
 
+**推荐：服务器路径确认后，将 Server Control 的 `server_config` 输出连接到所用其他节点的 `server_config` 输入。** Generate 自动使用并隐藏原 `server_url`；Voice Create 自动继承并隐藏可执行文件、模型、Tokenizer、音色/DLL 目录和 GPU 参数；Voice Input 可从相连的 Server Control 读取音色目录，方便选择已保存音色。注意不要把 `server_config` 输出与另一个 `server_url` 输出混淆；**连线不会自动启动服务器**，仍需要手动启动。
+
 ## 7. 常见报错速查
 
 | 现象 | 优先检查 |
@@ -208,4 +210,4 @@ curl.exe -X POST http://127.0.0.1:3030/generate --form 'text=Hello from the HTTP
 
 ## ComfyUI Node Setup
 
-独立 CLI 和 HTTP 测试均成功后，可以 [直接打开中文带图的 ComfyUI 节点设置教程](README.zh-CN.md#comfyui-node-setup)。添加 **Fish S2 Server Control**，使用 **Scan Components** 核对 `executable`、`model`、`tokenizer`、`voice_dir`、`dll_dir`，将其 `server_config` 输出连接到 **Fish S2 Generate**；随后启动服务并检查日志，再运行一段短文本。带图的两种用法分别展示下拉音色与 Voice Input 外接音色覆盖。
+独立 CLI 和 HTTP 测试均成功后，可以 [直接打开中文带图的 ComfyUI 节点设置教程](README.zh-CN.md#comfyui-node-setup)。添加 **Fish S2 Server Control**，使用 **Scan Components** 核对 `executable`、`model`、`tokenizer`、`voice_dir`、`dll_dir`。**配置完成后推荐将其 `server_config` 输出连接到 Generate，以及实际使用的 Voice Create / Voice Input 节点的同名输入端口**；连接后相关服务器配置会被自动复用，Generate 的地址控件和 Voice Create 的重复路径/GPU 控件也会自动隐藏。随后启动服务并检查日志，再运行一段短文本。带图的两种用法分别展示下拉音色与 Voice Input 外接音色覆盖。
