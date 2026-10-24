@@ -1,0 +1,18 @@
+# ComfyUI Registry metadata for xuanhai0/ComfyUI-FishS2-GGUF
+# IMPORTANT: Confirm PublisherId is your actual Registry publisher ID (after @).
+[project]
+name = "fishs2-gguf"
+version = "0.5.3"
+description = "Local Fish Audio S2 Pro GGUF speech generation in ComfyUI via s2.cpp, with multi-speaker and voice-management nodes."
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = []  # torch/numpy are provided by ComfyUI; scipy is optional for LUFS processing
+
+[project.urls]
+Repository = "https://github.com/xuanhai0/ComfyUI-FishS2-GGUF"
+Documentation = "https://github.com/xuanhai0/ComfyUI-FishS2-GGUF#readme"
+"Bug Tracker" = "https://github.com/xuanhai0/ComfyUI-FishS2-GGUF/issues"
+
+[tool.comfy]
+PublisherId = "xuanhai0"
+DisplayName = "Fish S2 GGUF (s2.cpp)"

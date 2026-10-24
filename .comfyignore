@@ -1,0 +1,9 @@
+# Only exclude repository/development metadata.
+# Keep README, INSTALL_*.md and docs/images because the documentation uses them.
+.github/
+.gitattributes
+.gitignore
+.vscode/
+.idea/
+__pycache__/
+*.pyc
